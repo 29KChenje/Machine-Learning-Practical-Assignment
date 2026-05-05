@@ -7,9 +7,8 @@ import streamlit as st
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-PROJECT_DIR = Path(__file__).parent
-MODEL_PATH = PROJECT_DIR / "model.pkl"
-DATA_PATH = PROJECT_DIR / "cleaned_dataset.csv"
+MODEL_PATH = "model.pkl"
+DATA_PATH = "cleaned_dataset.csv"
 FEATURE_COLUMNS = [
     "age",
     "family_income",
@@ -21,9 +20,20 @@ FEATURE_COLUMNS = [
 ]
 
 
-def train_and_save_model():
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(f"Required dataset not found: {DATA_PATH.name}")
+@st.cache_resource
+def load_model():
+    """Load or train the model with caching to avoid retraining on every run."""
+    if Path(MODEL_PATH).exists():
+        try:
+            with open(MODEL_PATH, "rb") as f:
+                model, scaler = pickle.load(f)
+            return model, scaler
+        except Exception as e:
+            st.warning(f"Could not load saved model: {e}. Retraining...")
+
+    # Train from dataset
+    if not Path(DATA_PATH).exists():
+        raise FileNotFoundError(f"Dataset not found: {DATA_PATH}")
 
     data = pd.read_csv(DATA_PATH)
     X = data[FEATURE_COLUMNS]
@@ -35,21 +45,7 @@ def train_and_save_model():
     model = LogisticRegression(max_iter=1000)
     model.fit(X_scaled, y)
 
-    with open(MODEL_PATH, "wb") as f:
-        pickle.dump((model, scaler), f)
-
     return model, scaler
-
-
-def load_model():
-    if MODEL_PATH.exists():
-        try:
-            with open(MODEL_PATH, "rb") as f:
-                return pickle.load(f)
-        except Exception:
-            st.warning("Saved model could not be loaded. Retraining from dataset...")
-
-    return train_and_save_model()
 
 
 def main():
@@ -58,11 +54,8 @@ def main():
 
     try:
         model, scaler = load_model()
-    except FileNotFoundError as exc:
-        st.error(str(exc))
-        st.stop()
-    except Exception as exc:
-        st.error(f"Failed to prepare model: {exc}")
+    except Exception as e:
+        st.error(f"Failed to load or train model: {e}")
         st.stop()
 
     age = st.number_input("Age", min_value=10, max_value=100, value=20)
