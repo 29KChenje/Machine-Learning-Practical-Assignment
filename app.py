@@ -1,13 +1,9 @@
-from pathlib import Path
-import pickle
-
 import numpy as np
 import pandas as pd
 import streamlit as st
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
-MODEL_PATH = "model.pkl"
 DATA_PATH = "cleaned_dataset.csv"
 FEATURE_COLUMNS = [
     "age",
@@ -21,42 +17,30 @@ FEATURE_COLUMNS = [
 
 
 @st.cache_resource
-def load_model():
-    """Load or train the model with caching to avoid retraining on every run."""
-    if Path(MODEL_PATH).exists():
-        try:
-            with open(MODEL_PATH, "rb") as f:
-                model, scaler = pickle.load(f)
-            return model, scaler
-        except Exception as e:
-            st.warning(f"Could not load saved model: {e}. Retraining...")
+def train_model():
+    """Train model from dataset and cache it."""
+    try:
+        data = pd.read_csv(DATA_PATH)
+        X = data[FEATURE_COLUMNS]
+        y = data["dropout"]
 
-    # Train from dataset
-    if not Path(DATA_PATH).exists():
-        raise FileNotFoundError(f"Dataset not found: {DATA_PATH}")
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
 
-    data = pd.read_csv(DATA_PATH)
-    X = data[FEATURE_COLUMNS]
-    y = data["dropout"]
-
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-
-    model = LogisticRegression(max_iter=1000)
-    model.fit(X_scaled, y)
-
-    return model, scaler
+        model = LogisticRegression(max_iter=1000)
+        model.fit(X_scaled, y)
+        
+        return model, scaler
+    except Exception as e:
+        st.error(f"Error loading dataset or training model: {e}")
+        st.stop()
 
 
 def main():
     st.title("Student Dropout Predictor")
     st.write("Enter student details and click Predict.")
 
-    try:
-        model, scaler = load_model()
-    except Exception as e:
-        st.error(f"Failed to load or train model: {e}")
-        st.stop()
+    model, scaler = train_model()
 
     age = st.number_input("Age", min_value=10, max_value=100, value=20)
     family_income = st.number_input("Family income", min_value=0.0, max_value=10000.0, value=50.0)
@@ -82,9 +66,9 @@ def main():
         prediction = model.predict(features_scaled)
 
         if prediction[0] == 1:
-            st.error("Student likely to Dropout")
+            st.error("🚨 Student likely to Dropout")
         else:
-            st.success("Student likely to Continue")
+            st.success("✅ Student likely to Continue")
 
 
 if __name__ == "__main__":
