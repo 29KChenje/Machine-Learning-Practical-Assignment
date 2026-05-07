@@ -1,0 +1,10 @@
+[client]
+showErrorDetails = true
+
+[logger]
+level = "info"
+
+[server]
+maxUploadSize = 200
+timeoutScriptSeconds = 600
+enableXsrfProtection = true
