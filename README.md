@@ -2,11 +2,17 @@
 
 A machine learning model built with Python and Streamlit to predict student dropout risk based on various academic and personal factors.
 
+## Links
+
+- GitHub repository: <https://github.com/29KChenje/Machine-Learning-Practical-Assignment>
+- Live Streamlit app: <https://machine-learning-practical-assignment.streamlit.app>
+- Deploy on Streamlit Cloud: <https://share.streamlit.io/deploy?repository=https://github.com/29KChenje/Machine-Learning-Practical-Assignment&branch=main&mainModule=app.py>
+
 ## Features
 
 - **Student Dropout Prediction**: Predicts whether a student is likely to dropout based on input parameters
 - **Interactive Web Interface**: Built with Streamlit for easy use
-- **Real-time Model Training**: Trains on the provided dataset at runtime
+- **Fast Cloud Startup**: Uses the trained model values directly in the app
 
 ## Installation
 
@@ -38,7 +44,7 @@ The app will be available at `http://localhost:8501`
 
 ## Deployment on Streamlit Cloud
 
-1. Go to [Streamlit Cloud](https://share.streamlit.io)
+1. Go to [Streamlit Cloud](https://share.streamlit.io) or open the deploy link above
 2. Sign in with your GitHub account
 3. Click **"New app"**
 4. Configure:
@@ -47,7 +53,7 @@ The app will be available at `http://localhost:8501`
    - **Main file**: `app.py`
 5. Click **"Deploy"**
 
-Your app will be live at: `https://share.streamlit.io/29KChenje/Machine-Learning-Practical-Assignment/main/app.py`
+After deployment, Streamlit Cloud will give you the public app URL.
 
 ## Model Features
 
@@ -63,7 +69,7 @@ The model uses the following features to make predictions:
 ## Files
 
 - `app.py` - Main Streamlit application
-- `cleaned_dataset.csv` - Training dataset
+- `cleaned_dataset.csv` - Training dataset used during model development
 - `requirements.txt` - Python dependencies
 - `runtime.txt` - Python version specification
 - `.streamlit/config.toml` - Streamlit configuration
